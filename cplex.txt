@@ -1,0 +1,2 @@
+javac -classpath  /usr/local/cplex/cplex/lib/cplex.jar opt.java
+java -classpath  /usr/local/cplex/cplex/lib/cplex.jar:. -Djava.library.path=/usr/local/cplex/cplex/bin/x86-64_linux opt
