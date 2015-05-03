@@ -11,13 +11,15 @@ public class simReopt{
              Random r=new Random();
              double[] gap=new double[10]; //record gaps for different k.
              double[] var=new double[10];
-             for(int i=1;i<=10;i++){
+             int LP_RUN =10;
+             int SIM_RUN =10;
+             for(int i=1;i<=LP_RUN;i++){
                 // sample 10 LPs.
-                double[] gap100=new double[50];
-                for(int simnum=0;simnum<50;simnum++){
+                double[] gap100=new double[SIM_RUN];
+                for(int simnum=0;simnum<SIM_RUN;simnum++){
                 int k=100*i; //number of advertisers.
                 
-                double ds=(alpha-1)*k*d-Math.sqrt(k)*d; // budget for the sink advertiseri
+                double ds=(alpha-1)*k*d-Math.sqrt(k)*d; // budget for the sink advertiser
                                 
                 // generate c matrix according to uniform distribution
                 double[] c1=new double[k];
@@ -43,7 +45,7 @@ public class simReopt{
                   ub[ii]=1;
                 }
                 
-                IloNumVar[] x = cplex.numVarArray(I*J, lb, ub);
+                IloNumVar[] x = cplex.numVarArray(I*J, lb, ub); // what is x ?????
                 double[] objvals = new double[I*J];
                 for (int kk=0;kk<I*J;kk++){
                      if(kk<J){
@@ -54,7 +56,7 @@ public class simReopt{
                      }
                 }
                 
-                cplex.addMaximize(cplex.scalProd(x, objvals));
+                cplex.addMaximize(cplex.scalProd(x, objvals)); //this is the objective function want to max
               
                 for(int ii=0;ii<I;ii++){
                   IloLinearNumExpr expr = cplex.linearNumExpr();
@@ -67,7 +69,7 @@ public class simReopt{
                 for(int jj=0;jj<J;jj++){
                   IloLinearNumExpr expr = cplex.linearNumExpr();
                   IloLinearNumExpr expr1 = cplex.linearNumExpr();
-                  
+                  //add constraints, why two constraints??????????????????????????
                   expr.addTerm(-k*d*alpha*0.25, x[jj]);
                   expr.addTerm(-k*d*alpha*0.75, x[J+jj]);
                   expr1.addTerm(k*d*alpha*0.25, x[jj]);
@@ -82,7 +84,7 @@ public class simReopt{
                 if (cplex.solve() ){
                     val = cplex.getValues(x);
                 }
-                double upperBound=cplex.getObjValue();
+                double upperBound=cplex.getObjValue(); //what's this value???????????
                 cplex.end();
                 //x1 and x2 denotes the fractions of assigned class 1 and 2 users. 
                 double x1=0;
@@ -98,34 +100,35 @@ public class simReopt{
                 double revenue=0;
                 double lambda=(double)1/(double)(k*d*alpha);
                 //number of simulation settings
-                for (int s=0;s<50;s++){
+                for (int s=0;s<SIM_RUN;s++){
                    t=0;
                    J=k;
                    //fulfilled set
                    HashSet<Integer> fulfill=new HashSet<Integer>();
                    int[] state=new int[J];
-                   int sink=0;
+                   int sink=0;  //what's sink??????????????????????????????
                    for(int jj=0;jj<k;jj++){
-                         state[jj]=0;
+                         state[jj]=0;  //state of advertiser j
                    }
-                   int arrive=0;
+                   int arrive=0;  // is it useful??????????????
                    while(t<=1){
                       r=new Random();
                       double u=r.nextDouble();
-                      t+=Math.log(1-u)*(-lambda);
+                      t+=Math.log(1-u)*(-lambda); //next time of arrival
                       arrive++;
                       r=new Random();
                       u=r.nextDouble();
-                      int index=0; //which to assign to
+                      int index=0; //which advertiser j to assign to
                       if(u<0.5*t){
-                       //class 1
-                        if(sink<ds){
+                       //arrival is from class 1
+                        if(sink<ds){ //
                           index=sampleIndices(val,0,fulfill,x1,false);
                         }
                         else{
                           index=sampleIndices(val,0,fulfill,x1,true);
                         }
                       }
+                      //arrival is from class2
                       else{
                         if(sink<ds){
                           index=sampleIndices(val,1,fulfill,x2,false);
@@ -138,7 +141,7 @@ public class simReopt{
                           break;
                       }
                       if(index==-2){
-                          sink++;
+                          sink++;  //index ==-2 means??????????????
                           continue;
                       }
                       state[index]++;
@@ -163,7 +166,7 @@ public class simReopt{
                             cplex = new IloCplex();
                             I=2;
                             J=J-1;
-                            System.out.println(J+" "+arrive);
+                            System.out.println(J+" "+arrive);   //????????????????????????????????
                             for (int ii=0;ii<indices.size();ii++){
                                //  System.out.print(state[indices.get(ii).intValue()]+" ");
                             } 
@@ -237,19 +240,19 @@ public class simReopt{
                       }
                   }
                   for(int jj=0;jj<k;jj++){
-                         revenue+=(state[jj]-10);
+                         revenue+=(state[jj]-d);
                   }
                   }
-                  revenue=revenue/50;
+                  revenue=revenue/SIM_RUN;
                   gap[i-1]+=Math.abs(revenue-upperBound)/k;
                   System.out.println(revenue+" "+upperBound+" ");
                   gap100[simnum]=Math.abs(revenue-upperBound)/k;
                }
-                 gap[i-1]=gap[i-1]/50;
-                 for(int jj=0;jj<50;jj++){
+                 gap[i-1]=gap[i-1]/SIM_RUN;
+                 for(int jj=0;jj<SIM_RUN;jj++){
                     var[i-1]+=Math.pow((gap100[jj]-gap[i-1]),2);
                  }
-                 var[i-1]=Math.sqrt(var[i-1]/50);
+                 var[i-1]=Math.sqrt(var[i-1]/SIM_RUN);
              }
              for(int i=0;i<10;i++){
                System.out.println(gap[i]+",");
@@ -283,45 +286,7 @@ public class simReopt{
                        if(sum==0){
                             for(int i=0;i<indices.size();i++){
                                 p[i]=(double)1/(double)indices.size();
-                            }
-                            sum=1;
-                       }
-                       if(flag==true){
-                          p[0]=p[0]/sum;
-                          for(int i=1;i<indices.size();i++){
-                             p[i]=(p[i]/sum)+p[i-1];
-                          }
-                          p[indices.size()]=1;
-                       }
-                       else{
-                          p[0]=p[0]/sum*s;
-                          for(int i=1;i<indices.size();i++){
-                           p[i]=(p[i]/sum*s)+p[i-1];
-                          }
-                          p[indices.size()]=1;
-                       }
-                       Random r=new Random();
-                       double n=r.nextDouble();
-                       int low=-1;
-                       int high=indices.size();
-                       while(low<high-1){
-                           int mid=(high+low)/2;
-                           if(p[mid]>n){
-                              high=mid;
-                           }
-                           else{
-                              low=mid;
-                           }
-                       }
-                       if(high<indices.size()){
-                          return indices.get(high).intValue();
-                       }
-                       else{
-                          return -2;
-                       }
-                      }
-                      else{
-                       return -1;
+           
                       }
     }
 }
