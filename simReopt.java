@@ -165,7 +165,7 @@ public class simReopt{
                             cplex = new IloCplex();
                             I=2;
                             J=J-1;
-                            System.out.println(J+" "+arrive);
+                            //System.out.println(J+" "+arrive);
                             for (int ii=0;ii<indices.size();ii++){
                                //  System.out.print(state[indices.get(ii).intValue()]+" ");
                             } 
@@ -244,7 +244,7 @@ public class simReopt{
                   }
                   revenue=revenue/sim_lp;
                   gap[i-1]+=Math.abs(revenue-upperBound)/k;
-                  System.out.println(revenue+" "+upperBound+" ");
+                  System.out.println("revenue:"+revenue+" "+"upperbound"+upperBound+" ");
                   gap100[simnum]=Math.abs(revenue-upperBound)/k;
                }
                  gap[i-1]=gap[i-1]/sim_lp;
@@ -254,11 +254,11 @@ public class simReopt{
                  var[i-1]=Math.sqrt(var[i-1]/sim_lp);
              }
              for(int i=0;i<10;i++){
-               System.out.println(gap[i]+",");
+               System.out.println("gap"+i+" " gap[i]+",");
              }
              System.out.println();
              for(int i=0;i<10;i++){
-               System.out.println(var[i]+",");
+               System.out.println("var" +i+ " "+ var[i]+",");
              }
            }
            catch (Exception e){
