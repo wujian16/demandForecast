@@ -1,3 +1,10 @@
+package com.mkyong;
+ 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import ilog.concert.*;
 import ilog.cplex.*;
 import java.util.*;
@@ -6,12 +13,13 @@ import java.lang.Math;
 public class simReopt{
         public static void main(String[] args) {
            try{
+
              int d=10; //every advertiser has 10 in budget.
              double alpha=1.2; //demand to supply ratio.
              Random r=new Random();
              double[] gap=new double[10]; //record gaps for different k.
              double[] var=new double[10];
-             int sim_lp=50;
+             int sim_lp=10;
              int lp_num=10;
              for(int i=1;i<=10;i++){
                 // sample 10 LPs.
@@ -253,9 +261,9 @@ public class simReopt{
                  }
                  var[i-1]=Math.sqrt(var[i-1]/sim_lp);
              }
-             for(int i=0;i<10;i++){
+             /*for(int i=0;i<10;i++){
                System.out.println("gap"+i+" " gap[i]+",");
-             }
+             }*/
              System.out.println();
              for(int i=0;i<10;i++){
                System.out.println("var" +i+ " "+ var[i]+",");
@@ -264,6 +272,29 @@ public class simReopt{
            catch (Exception e){
                System.err.println("Concert exception caught: " + e);
            }
+           try {
+ 
+			File file = new File("output.txt");
+ 
+			// if file doesnt exists, then create it
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+ 
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+                        for(int i=0;i<10;i++){
+                        bw.write("gap"+i+" " gap[i]+","+"\n");
+                        bw.write("var" +i+ " "+ var[i]+",");
+                        }
+			//bw.write(content);
+			bw.close();
+ 
+			//System.out.println("Done");
+ 
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
    }
 
    // Get the index of the advertiser according to the probabilities.
