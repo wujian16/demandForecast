@@ -12,13 +12,15 @@ import java.lang.Math;
 
 public class simReopt{
         public static void main(String[] args) {
+        double[] gap=new double[10]; //record gaps for different k.
+        double[] var=new double[10];
            try{
 
              int d=10; //every advertiser has 10 in budget.
              double alpha=1.2; //demand to supply ratio.
              Random r=new Random();
-             double[] gap=new double[10]; //record gaps for different k.
-             double[] var=new double[10];
+             //double[] gap=new double[10]; //record gaps for different k.
+             //double[] var=new double[10];
              int sim_lp=10;
              int lp_num=10;
              for(int i=1;i<=10;i++){
@@ -284,7 +286,7 @@ public class simReopt{
 			FileWriter fw = new FileWriter(file.getAbsoluteFile());
 			BufferedWriter bw = new BufferedWriter(fw);
                         for(int i=0;i<10;i++){
-                        bw.write("gap"+i+" " gap[i]+","+"\n");
+                        bw.write("gap"+i+" " + gap[i]+","+"\n");
                         bw.write("var" +i+ " "+ var[i]+",");
                         }
 			//bw.write(content);
